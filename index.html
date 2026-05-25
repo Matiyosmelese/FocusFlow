@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FocusFlow | Student Productivity Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        :root {
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --accent: #6366f1;
+            --accent-glow: #818cf8;
+            --border: #e2e8f0;
+            --card-shadow: 0 20px 35px -10px rgba(0,0,0,0.08);
+            --gradient-1: linear-gradient(135deg, #6366f1, #a855f7);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --card-shadow: 0 20px 35px -10px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.85);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            gap: 1rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 0.5rem 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .theme-toggle-small {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.6rem;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            padding: 0;
+        }
+        .active-page {
+            display: block;
+        }
+
+        /* Home page */
+        .hero {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        .hero-content h1 {
+            font-size: 3.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+            font-weight: 800;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(99,102,241,0.2);
+            backdrop-filter: blur(4px);
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--gradient-1);
+            padding: 0.9rem 2.2rem;
+            border-radius: 60px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--accent);
+            padding: 0.9rem 2.2rem;
+            border-radius: 60px;
+            color: var(--accent);
+            text-decoration: none;
+            margin-left: 1rem;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .hero-preview {
+            background: var(--surface);
+            padding: 1.8rem;
+            border-radius: 32px;
+            box-shadow: var(--card-shadow);
+            min-width: 240px;
+            border: 1px solid var(--border);
+        }
+        .features-grid, .testimonial-grid, .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            max-width: 1300px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 2rem;
+        }
+        .feature-card, .testimonial, .about-grid > div {
+            background: var(--surface);
+            padding: 1.8rem;
+            border-radius: 32px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 40px -15px rgba(0,0,0,0.2);
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 90vh;
+            background: var(--bg-color);
+        }
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            font-weight: 800;
+            font-size: 1.4rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border-radius: 60px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: 0.2s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .sidebar-nav .nav-item.active, .sidebar-nav .nav-item:hover {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+        .main-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        /* Section Views (Full page style with back button) */
+        .section-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .section-view.active-view {
+            display: block;
+        }
+        .back-button {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+        .back-button:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        /* Dashboard widgets */
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.8rem;
+        }
+        .card {
+            background: var(--surface);
+            border-radius: 32px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+        }
+        .wide {
+            grid-column: span 2;
+        }
+        /* Glossy Buttons & Inputs */
+        button, .filter-btn, .small-btn, .goal-add-btn {
+            background: var(--gradient-1);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+        }
+        input, textarea, select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 60px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .todo-list-ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            gap: 10px;
+        }
+        .todo-list-ul li span {
+            flex: 1;
+        }
+        .delete-task {
+            background: #ef4444;
+            padding: 6px 12px;
+            border-radius: 40px;
+        }
+        .completed-task {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .progress-bar {
+            background: var(--border);
+            border-radius: 20px;
+            height: 12px;
+            margin: 8px 0;
+            width: 100%;
+        }
+        #dailyProgressFill {
+            background: var(--gradient-1);
+            border-radius: 20px;
+            height: 12px;
+            width: 0%;
+        }
+        /* Calendar */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        .cal-date {
+            padding: 12px;
+            text-align: center;
+            border-radius: 60px;
+            cursor: pointer;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .cal-date.today {
+            background: var(--accent);
+            color: white;
+        }
+        /* Goals List */
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .goal-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .goal-item span {
+            flex: 1;
+        }
+        .delete-goal {
+            background: #ef4444;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+        /* Sound buttons */
+        .sound-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 1rem 0;
+        }
+        .sound-btn {
+            background: var(--surface);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+        }
+        .sound-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        /* Quotes banner */
+        .quote-banner {
+            background: var(--surface);
+            padding: 12px 24px;
+            border-radius: 60px;
+            text-align: center;
+            margin-bottom: 24px;
+            font-style: italic;
+            font-weight: 500;
+            border-left: 4px solid var(--accent);
+            box-shadow: var(--card-shadow);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 90px; padding: 1rem 0.5rem; }
+            .sidebar-nav .nav-item span { display: none; }
+            .wide { grid-column: span 1; }
+            .hero-content h1 { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <nav class="main-nav">
+        <div class="logo"><i class="fas fa-brain"></i> FocusFlow</div>
+        <div class="nav-links">
+            <a data-page="home" class="nav-link active">Home</a>
+            <a data-page="dashboard" class="nav-link">Dashboard</a>
+            <a data-page="about" class="nav-link">About</a>
+            <a data-page="contact" class="nav-link">Contact</a>
+        </div>
+        <button id="darkModeToggleNav" class="theme-toggle-small"><i class="fas fa-moon"></i></button>
+    </nav>
+
+    <!-- HOME -->
+    <div id="page-home" class="page active-page">
+        <div class="hero">
+            <div class="hero-content">
+                <span class="badge">StudentOS · Next Gen Productivity</span>
+                <h1>Master your focus,<br>dominate your goals.</h1>
+                <p>Pomodoro timer · Smart tasks · Streak tracker · Analytics — All in one beautiful dashboard.</p>
+                <div>
+                    <a data-page="dashboard" class="btn-primary"><i class="fas fa-rocket"></i> Launch Dashboard</a>
+                    <a data-page="about" class="btn-outline">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="hero-preview">
+                <div class="preview-card"><i class="fas fa-chart-line"></i> Progress · 87%<div class="mini-bar"><span style="width:87%"></span></div></div>
+                <div class="preview-card"><i class="fas fa-fire"></i> 12 day streak</div>
+            </div>
+        </div>
+        <section class="features">
+            <h2>Everything you need, streamlined</h2>
+            <div class="features-grid">
+                <div class="feature-card"><i class="fas fa-tasks"></i><h3>Smart To-Do</h3><p>Priorities, due dates & local storage – never miss a task.</p></div>
+                <div class="feature-card"><i class="fas fa-hourglass-half"></i><h3>Pomodoro Timer</h3><p>Study + break modes with circular timer & session counter.</p></div>
+                <div class="feature-card"><i class="fas fa-chart-simple"></i><h3>Analytics Hub</h3><p>Track completion rate, study hours, and productivity score.</p></div>
+                <div class="feature-card"><i class="fas fa-moon"></i><h3>Dark / Light Mode</h3><p>Smooth transitions and system preference saved.</p></div>
+            </div>
+        </section>
+        <footer><p>© May 2026 FocusFlow — Empowering students worldwide</p></footer>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+        <div class="dashboard-container">
+            <aside class="sidebar">
+                <div class="sidebar-logo"><i class="fas fa-brain"></i> FocusFlow</div>
+                <nav class="sidebar-nav">
+                    <a class="nav-item active" data-section="dashboard-main"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                    <a class="nav-item" data-section="tasks"><i class="fas fa-check-circle"></i> <span>Tasks</span></a>
+                    <a class="nav-item" data-section="timer"><i class="fas fa-hourglass-half"></i> <span>Timer</span></a>
+                    <a class="nav-item" data-section="calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a>
+                    <a class="nav-item" data-section="notes"><i class="fas fa-sticky-note"></i> <span>Notes</span></a>
+                    <a class="nav-item" data-section="ambient"><i class="fas fa-headphones"></i> <span>Ambient</span></a>
+                </nav>
+            </aside>
+            <main class="main-panel">
+                <!-- Top Quote Banner -->
+                <div id="quoteBanner" class="quote-banner">“Small progress is still progress.”</div>
+                
+                <!-- Dashboard Main View -->
+                <div id="dashboard-main" class="section-view active-view">
+                    <div class="welcome-header"><h2 id="dynamicGreeting">Good day, Scholar</h2><div class="productivity-badge">Productivity: <span id="scoreValue">Beginner</span></div></div>
+                    <div class="widgets-grid">
+                        <div class="widget card"><div class="widget-header"><i class="fas fa-list-check"></i> <h3>Today's Tasks</h3> <a class="widget-link" data-nav="tasks">+</a></div><ul id="taskPreviewList" class="compact-task-list"><li>Loading tasks...</li></ul></div>
+                        <div class="widget card"><div class="widget-header"><i class="fas fa-hourglass-start"></i> <h3>Pomodoro</h3></div><div class="pomodoro-mini"><div class="timer-circle" id="miniTimerDisplay">25:00</div><div class="timer-controls"><button id="quickStartPomo"><i class="fas fa-play"></i></button><button id="quickPausePomo"><i class="fas fa-pause"></i></button><button id="quickResetPomo"><i class="fas fa-undo"></i></button></div><div class="session-count">Sessions completed: <span id="sessionCounter">0</span></div></div></div>
+                        <div class="widget card"><div class="widget-header"><i class="fas fa-fire"></i> <h3>Study Streak</h3></div><div class="streak-box"><span id="streakCount">0</span> days</div><div class="quote-box" id="quoteBox">“Stay consistent”</div><button id="newQuoteBtn" class="small-btn"><i class="fas fa-sync-alt"></i> New Quote</button></div>
+                        <div class="widget card"><div class="widget-header"><i class="fas fa-flag-checkered"></i> <h3>Daily Goals</h3></div><div id="dailyGoalsContainer"></div><div class="progress-section"><span>Completion</span><div class="progress-bar"><div id="dailyProgressFill" style="width:0%"></div></div><span id="dailyPercent">0%</span></div><button id="addGoalBtn" style="margin-top:12px; width:100%"><i class="fas fa-plus"></i> Add New Goal</button></div>
+                        <div class="widget card wide"><div class="widget-header"><i class="fas fa-chart-pie"></i> <h3>Progress Analytics</h3></div><canvas id="taskChart" width="300" height="150" style="max-height:180px"></canvas><div class="stats-row"><span>Study hours this week: <strong id="studyHoursSpan">0</strong> hrs</span></div></div>
+                    </div>
+                </div>
+
+                <!-- Section Views with Back Button -->
+                <div id="tasks-view" class="section-view">
+                    <button class="back-button" data-back="dashboard-main"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                    <h2><i class="fas fa-tasks"></i> Smart To-Do List</h2>
+                    <div class="todo-controls" style="display:flex; gap:10px; flex-wrap:wrap; margin:1rem 0"><input type="text" id="taskInput" placeholder="Write a task..." style="flex:1"><select id="prioritySelect"><option>Low</option><option selected>Medium</option><option>High</option></select><input type="date" id="dueDateInput"><button id="addTaskBtn"><i class="fas fa-plus"></i> Add</button></div>
+                    <div class="filter-bar" style="margin-bottom:1rem"><button data-filter="all" class="filter-btn active">All</button><button data-filter="active" class="filter-btn">Active</button><button data-filter="completed" class="filter-btn">Completed</button></div>
+                    <ul id="todoList" class="todo-list-ul"></ul>
+                </div>
+                <div id="timer-view" class="section-view">
+                    <button class="back-button" data-back="dashboard-main"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                    <h2><i class="fas fa-hourglass-half"></i> Focus Timer</h2>
+                    <div class="pomodoro-full"><div class="timer-circle-large" id="fullTimerDisplay">25:00</div><div class="mode-buttons"><button data-mode="study" class="mode-active">Study 25min</button><button data-mode="shortBreak">Break 5min</button><button data-mode="longBreak">Long Break 15min</button></div><div><button id="fullStartBtn">Start</button> <button id="fullPauseBtn">Pause</button> <button id="fullResetBtn">Reset</button></div><div id="studyHoursTracker">Total study minutes: <span id="totalStudyMins">0</span> mins</div></div>
+                </div>
+                <div id="calendar-view" class="section-view">
+                    <button class="back-button" data-back="dashboard-main"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                    <h2><i class="fas fa-calendar"></i> Study Calendar</h2>
+                    <div id="calendarGrid"></div>
+                    <div id="eventDisplay" style="margin-top:1.5rem"><h4>Events for selected date</h4><input id="eventText" placeholder="Add event" style="width:70%"><button id="addEventBtn">Add Event</button><ul id="eventsList"></ul></div>
+                </div>
+                <div id="notes-view" class="section-view">
+                    <button class="back-button" data-back="dashboard-main"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                    <h2><i class="fas fa-sticky-note"></i> Quick Notes</h2>
+                    <textarea id="noteInput" placeholder="Write a new note..." rows="3" style="width:100%; border-radius:24px; margin:1rem 0"></textarea><button id="addNoteBtn" style="margin-bottom:1rem">+ Add Note</button>
+                    <ul id="notesList" style="list-style:none"></ul>
+                </div>
+                <div id="ambient-view" class="section-view">
+                    <button class="back-button" data-back="dashboard-main"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                    <h2><i class="fas fa-headphones"></i> Ambient Focus</h2>
+                    <div class="sound-buttons">
+                        <button data-sound="rain" class="sound-btn">Rain</button>
+                        <button data-sound="cafe" class="sound-btn">Cafe</button>
+                        <button data-sound="forest" class="sound-btn">Forest</button>
+                        <button data-sound="waves" class="sound-btn">Ocean Waves</button>
+                        <button data-sound="fireplace" class="sound-btn">Fireplace</button>
+                        <button data-sound="whitenoise" class="sound-btn">White Noise</button>
+                        <button id="stopAmbient" class="sound-btn" style="background:#ef4444; color:white">Stop All</button>
+                    </div>
+                    <p class="sound-note" style="margin-top:1rem">* Click any sound to play unique ambient track (WebAudio synthesized).</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ABOUT & CONTACT simplified -->
+    <div id="page-about" class="page"><section class="about-hero" style="max-width:1200px; margin:3rem auto; padding:2rem"><h1>Built for modern students</h1><p>FocusFlow combines psychology, design, and real-time tracking to supercharge your academic journey.</p></section><div class="about-grid"><div><i class="fas fa-chart-line fa-2x"></i><h3>Purpose</h3><p>Reduce procrastination, visualise progress, and build unstoppable study habits.</p></div><div><i class="fas fa-cogs fa-2x"></i><h3>Technologies</h3><p>HTML5, CSS3, JavaScript, Chart.js, localStorage, Web Audio API.</p></div><div><i class="fas fa-user-graduate fa-2x"></i><h3>Benefits</h3><p>Streaks, Pomodoro, notes & calendar — all offline-ready, privacy first.</p></div></div><footer><p>© May 2026 FocusFlow — Empowering students worldwide</p></footer></div>
+    <div id="page-contact" class="page"><div class="contact-container" style="max-width:600px; margin:3rem auto; padding:2rem"><h2>Get in touch</h2><form id="contactForm"><input type="text" placeholder="Your name" required style="width:100%; margin-bottom:1rem"><input type="email" placeholder="Email" required style="width:100%; margin-bottom:1rem"><textarea rows="4" placeholder="Message..." style="width:100%; margin-bottom:1rem"></textarea><button type="submit">Send Message <i class="fas fa-paper-plane"></i></button><p id="formFeedback" style="margin-top:10px;"></p></form><div class="social-links" style="margin-top:2rem"><i class="fab fa-github"></i> GitHub: FocusFlowRepo &nbsp;&nbsp; <i class="fab fa-twitter"></i> FocusFlow</div></div><footer><p>© May 2026 FocusFlow — Empowering students worldwide</p></footer></div>
+</div>
+
+<script>
+    // ---------- THEME ----------
+    (function() {
+        const theme = localStorage.getItem('focusflow-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        const updateIcons = () => {
+            const btns = document.querySelectorAll('#darkModeToggleNav, #darkModeToggleDash');
+            btns.forEach(btn => btn.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>');
+        };
+        document.querySelectorAll('#darkModeToggleNav, #darkModeToggleDash').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                let current = document.documentElement.getAttribute('data-theme');
+                let newTheme = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('focusflow-theme', newTheme);
+                updateIcons();
+            });
+        });
+        updateIcons();
+    })();
+
+    // Routing
+    function navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(`page-${pageId}`).classList.add('active-page');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
+        if (pageId === 'dashboard') initDashboardModules();
+    }
+    document.querySelectorAll('.nav-link, [data-page]').forEach(el => {
+        el.addEventListener('click', (e) => { e.preventDefault(); const page = el.getAttribute('data-page'); if (page) navigateTo(page); });
+    });
+
+    // Data
+    let tasks = JSON.parse(localStorage.getItem('focusflow-tasks')) || [];
+    let currentFilter = 'all';
+    let pomodoroState = { mode: 'study', timeLeft: 25*60, timerInterval: null, sessionsCompleted: parseInt(localStorage.getItem('pomoSessions')||0), studyMinutes: parseInt(localStorage.getItem('studyMinutes')||0) };
+    let events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
+    let currentDate = new Date();
+    let notes = JSON.parse(localStorage.getItem('focusflow-notes')) || [];
+    let taskChartInstance = null;
+    let dailyGoals = JSON.parse(localStorage.getItem('dailyGoals')) || [];
+
+    // Quotes (many)
+    const quotesArray = [
+        "Small progress is still progress.", "Discipline beats motivation.", "You don't have to be extreme, just consistent.",
+        "Future you will thank you.", "Start where you are. Use what you have.", "Success is the sum of small efforts.",
+        "Do it now. Sometimes later becomes never.", "The secret of getting ahead is getting started.",
+        "It does not matter how slowly you go as long as you do not stop.", "Believe you can and you're halfway there."
+    ];
+    function updateQuoteBanner() { 
+        const idx = Math.floor(Math.random() * quotesArray.length);
+        const banner = document.getElementById('quoteBanner');
+        if(banner) banner.innerText = `“${quotesArray[idx]}”`;
+    }
+    setInterval(updateQuoteBanner, 10000);
+    
+    // ToDo
+    function saveTasks() { localStorage.setItem('focusflow-tasks', JSON.stringify(tasks)); renderTodoList(); updateTaskPreview(); updateAnalytics(); updateProductivityScore(); }
+    function renderTodoList() {
+        let filtered = tasks.filter(t => { if(currentFilter==='active') return !t.completed; if(currentFilter==='completed') return t.completed; return true; });
+        const container = document.getElementById('todoList'); if(!container) return;
+        container.innerHTML = filtered.map(task => `<li class="${task.completed ? 'completed-task':''}"><span><input type="checkbox" ${task.completed ? 'checked':''} data-id="${task.id}" class="task-check"> ${task.text} [${task.priority}] ${task.dueDate ? '📅'+task.dueDate:''}</span><button class="delete-task" data-id="${task.id}"><i class="fas fa-trash"></i></button></li>`).join('');
+        document.querySelectorAll('.task-check').forEach(cb => cb.addEventListener('change', (e)=> { let id = parseInt(e.target.dataset.id); let task = tasks.find(t=>t.id===id); if(task) { task.completed = e.target.checked; saveTasks(); }}));
+        document.querySelectorAll('.delete-task').forEach(btn => btn.addEventListener('click', (e)=> { let id = parseInt(btn.dataset.id); tasks = tasks.filter(t=>t.id!==id); saveTasks(); }));
+    }
+    function addTask(text, priority, dueDate) { if(!text.trim()) return; tasks.push({ id: Date.now(), text, priority, dueDate, completed: false }); saveTasks(); }
+    function updateTaskPreview() { let preview = document.getElementById('taskPreviewList'); if(preview) preview.innerHTML = tasks.filter(t=>!t.completed).slice(0,3).map(t=>`<li>• ${t.text}</li>`).join('') || '<li>No pending tasks</li>'; }
+    function setupTodo() {
+        document.getElementById('addTaskBtn')?.addEventListener('click',()=>{ addTask(document.getElementById('taskInput').value, document.getElementById('prioritySelect').value, document.getElementById('dueDateInput').value); document.getElementById('taskInput').value=''; });
+        document.querySelectorAll('.filter-btn').forEach(btn=>btn.addEventListener('click',(e)=>{ currentFilter = e.target.dataset.filter; renderTodoList(); }));
+        renderTodoList();
+    }
+
+    // Pomodoro
+    function updatePomoDisplay(elementId, timeLeft) { let mins = Math.floor(timeLeft/60); let secs = timeLeft%60; let el = document.getElementById(elementId); if(el) el.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; }
+    function startTimer() { if(pomodoroState.timerInterval) clearInterval(pomodoroState.timerInterval); pomodoroState.timerInterval = setInterval(()=>{ if(pomodoroState.timeLeft<=0){ clearInterval(pomodoroState.timerInterval); pomodoroState.timerInterval=null; handleTimerComplete(); } else { pomodoroState.timeLeft--; updatePomoDisplay('fullTimerDisplay', pomodoroState.timeLeft); updatePomoDisplay('miniTimerDisplay', pomodoroState.timeLeft); } },1000); }
+    function handleTimerComplete() { if(pomodoroState.mode === 'study') { pomodoroState.sessionsCompleted++; pomodoroState.studyMinutes += 25; localStorage.setItem('pomoSessions', pomodoroState.sessionsCompleted); localStorage.setItem('studyMinutes', pomodoroState.studyMinutes); document.getElementById('sessionCounter').innerText = pomodoroState.sessionsCompleted; document.getElementById('totalStudyMins').innerText = pomodoroState.studyMinutes; updateStreakFromStudy(); playBeep(); } else { playBeep(); } }
+    function playBeep() { try{ const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); gain.gain.value=0.2; osc.frequency.value=880; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime+0.5); osc.stop(audioCtx.currentTime+0.5); }catch(e){} }
+    function resetPomodoro() { if(pomodoroState.timerInterval) clearInterval(pomodoroState.timerInterval); pomodoroState.timeLeft = pomodoroState.mode==='study'?25*60:(pomodoroState.mode==='shortBreak'?5*60:15*60); updatePomoDisplay('fullTimerDisplay', pomodoroState.timeLeft); updatePomoDisplay('miniTimerDisplay', pomodoroState.timeLeft); }
+    function setupPomodoro() {
+        document.getElementById('fullStartBtn')?.addEventListener('click',startTimer);
+        document.getElementById('fullPauseBtn')?.addEventListener('click',()=>{ if(pomodoroState.timerInterval)clearInterval(pomodoroState.timerInterval); pomodoroState.timerInterval=null;});
+        document.getElementById('fullResetBtn')?.addEventListener('click',resetPomodoro);
+        document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',(e)=>{ let mode=e.target.dataset.mode; pomodoroState.mode=mode; if(mode==='study') pomodoroState.timeLeft=25*60; else if(mode==='shortBreak') pomodoroState.timeLeft=5*60; else pomodoroState.timeLeft=15*60; updatePomoDisplay('fullTimerDisplay', pomodoroState.timeLeft); if(pomodoroState.timerInterval)clearInterval(pomodoroState.timerInterval); }));
+        document.getElementById('sessionCounter').innerText = pomodoroState.sessionsCompleted;
+        document.getElementById('totalStudyMins').innerText = pomodoroState.studyMinutes;
+        resetPomodoro();
+        document.getElementById('quickStartPomo')?.addEventListener('click',startTimer);
+        document.getElementById('quickPausePomo')?.addEventListener('click',()=>{if(pomodoroState.timerInterval)clearInterval(pomodoroState.timerInterval);pomodoroState.timerInterval=null;});
+        document.getElementById('quickResetPomo')?.addEventListener('click',resetPomodoro);
+    }
+    function updateStreakFromStudy() { let streakData = JSON.parse(localStorage.getItem('streakData')) || { streak: 0, lastDate: null }; let today = new Date().toDateString(); if(streakData.lastDate !== today) { if(streakData.lastDate === new Date(Date.now()-86400000).toDateString()) streakData.streak++; else streakData.streak=1; streakData.lastDate = today; localStorage.setItem('streakData',JSON.stringify(streakData)); document.getElementById('streakCount').innerText = streakData.streak; } }
+
+    // Quotes widget
+    function displayRandomQuote() { let idx = Math.floor(Math.random()*quotesArray.length); let q = document.getElementById('quoteBox'); if(q) q.innerText = `“${quotesArray[idx]}”`; }
+    function setupQuotes() { displayRandomQuote(); document.getElementById('newQuoteBtn')?.addEventListener('click',displayRandomQuote); }
+
+    // Calendar
+    function renderCalendar() {
+        const year = currentDate.getFullYear(); const month = currentDate.getMonth(); const firstDay = new Date(year,month,1).getDay(); const daysInMonth = new Date(year,month+1,0).getDate();
+        let html = `<div style="display:flex; gap:1rem; margin-bottom:1rem"><button id="prevMonth">Previous</button><span style="font-weight:bold">${year} - ${month+1}</span><button id="nextMonth">Next</button></div><div class="cal-grid">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-day-name">${d}</div>`).join('')}`;
+        for(let i=0;i<firstDay;i++) html+=`<div></div>`;
+        for(let d=1;d<=daysInMonth;d++){ let isToday = (new Date().toDateString() === new Date(year,month,d).toDateString()); let key = `${year}-${month+1}-${d}`; let hasEvent = events[key] ? '📌' : ''; html+=`<div class="cal-date ${isToday?'today':''}" data-date="${key}">${d} ${hasEvent}</div>`; }
+        html+=`</div>`; document.getElementById('calendarGrid').innerHTML = html;
+        document.querySelectorAll('.cal-date').forEach(el=>el.addEventListener('click',(e)=>{ let date = e.currentTarget.dataset.date; loadEventsForDate(date); }));
+        document.getElementById('prevMonth')?.addEventListener('click',()=>{ currentDate.setMonth(currentDate.getMonth()-1); renderCalendar(); });
+        document.getElementById('nextMonth')?.addEventListener('click',()=>{ currentDate.setMonth(currentDate.getMonth()+1); renderCalendar(); });
+    }
+    function loadEventsForDate(dateKey) {
+        let evs = events[dateKey] || []; let list = document.getElementById('eventsList'); if(!list) return;
+        list.innerHTML = evs.map((ev,idx)=>`<li style="margin:5px 0">${ev} <button data-evidx="${idx}" data-d="${dateKey}">Remove</button></li>`).join('');
+        document.getElementById('addEventBtn').onclick = ()=>{ let txt = document.getElementById('eventText').value; if(txt){ if(!events[dateKey]) events[dateKey]=[]; events[dateKey].push(txt); localStorage.setItem('calendarEvents',JSON.stringify(events)); loadEventsForDate(dateKey); document.getElementById('eventText').value=''; renderCalendar(); } };
+        document.querySelectorAll('[data-evidx]').forEach(btn=>btn.addEventListener('click',(e)=>{ let idx = parseInt(btn.dataset.evidx); let d = btn.dataset.d; events[d].splice(idx,1); if(events[d].length===0) delete events[d]; localStorage.setItem('calendarEvents',JSON.stringify(events)); loadEventsForDate(d); renderCalendar(); }));
+    }
+    function setupCalendar() { renderCalendar(); }
+
+    // Notes
+    function renderNotes() { let container = document.getElementById('notesList'); if(!container) return; container.innerHTML = notes.map((n,idx)=>`<li style="display:flex; justify-content:space-between; margin:8px 0; padding:8px; background:var(--surface); border-radius:60px"><span>${n}</span><button data-idx="${idx}" style="background:#ef4444">Delete</button></li>`).join(''); document.querySelectorAll('#notesList button').forEach(btn=>btn.addEventListener('click',(e)=>{ let idx = parseInt(btn.dataset.idx); notes.splice(idx,1); localStorage.setItem('focusflow-notes',JSON.stringify(notes)); renderNotes(); })); }
+    function setupNotes() { renderNotes(); document.getElementById('addNoteBtn')?.addEventListener('click',()=>{ let val = document.getElementById('noteInput').value; if(val) { notes.push(val); localStorage.setItem('focusflow-notes',JSON.stringify(notes)); renderNotes(); document.getElementById('noteInput').value=''; } }); }
+
+    // Analytics
+    function updateAnalytics() {
+        let totalTasks = tasks.length; let completedTasks = tasks.filter(t=>t.completed).length;
+        let ctx = document.getElementById('taskChart')?.getContext('2d');
+        if(ctx && taskChartInstance) taskChartInstance.destroy();
+        if(ctx) taskChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Completed','Pending'], datasets: [{ data: [completedTasks, totalTasks-completedTasks], backgroundColor: ['#22c55e','#f97316'] }] } });
+        document.getElementById('studyHoursSpan').innerText = (pomodoroState.studyMinutes/60).toFixed(1);
+    }
+    function updateProductivityScore() {
+        let tasksDone = tasks.filter(t=>t.completed).length; let sessions = pomodoroState.sessionsCompleted; let streak = (JSON.parse(localStorage.getItem('streakData'))||{streak:0}).streak;
+        let score = tasksDone*2 + sessions*3 + streak*5; let badge = score<20 ? "Beginner" : (score<60 ? "Focused" : "Productivity Master");
+        document.getElementById('scoreValue').innerText = badge;
+    }
+
+    // Daily Goals (unlimited)
+    function saveGoals() { localStorage.setItem('dailyGoals', JSON.stringify(dailyGoals)); renderGoals(); updateGoalProgress(); }
+    function renderGoals() {
+        let container = document.getElementById('dailyGoalsContainer');
+        if(!container) return;
+        if(dailyGoals.length === 0) { container.innerHTML = '<p>No goals yet. Add one!</p>'; return; }
+        container.innerHTML = dailyGoals.map((goal, idx) => `
+            <div class="goal-item">
+                <input type="checkbox" data-goal-idx="${idx}" ${goal.completed ? 'checked' : ''}>
+                <span style="${goal.completed ? 'text-decoration:line-through; opacity:0.7' : ''}">${goal.text}</span>
+                <button class="delete-goal" data-goal-idx="${idx}">Delete</button>
+            </div>
+        `).join('');
+        document.querySelectorAll('.goal-item input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => { let idx = parseInt(e.target.dataset.goalIdx); dailyGoals[idx].completed = e.target.checked; saveGoals(); updateProductivityScore(); });
+        });
+        document.querySelectorAll('.delete-goal').forEach(btn => {
+            btn.addEventListener('click', (e) => { let idx = parseInt(btn.dataset.goalIdx); dailyGoals.splice(idx,1); saveGoals(); updateProductivityScore(); });
+        });
+    }
+    function addGoal(text) { if(text.trim()) { dailyGoals.push({ text: text.trim(), completed: false }); saveGoals(); } }
+    function updateGoalProgress() {
+        let total = dailyGoals.length;
+        let completed = dailyGoals.filter(g => g.completed).length;
+        let percent = total === 0 ? 0 : (completed/total)*100;
+        document.getElementById('dailyProgressFill').style.width = `${percent}%`;
+        document.getElementById('dailyPercent').innerText = `${Math.round(percent)}%`;
+    }
+    function initGoals() {
+        if(dailyGoals.length === 0) dailyGoals = [{ text: "Finish JavaScript lesson", completed: false }, { text: "Study 3 hours", completed: false }, { text: "Complete math homework", completed: false }];
+        saveGoals();
+        document.getElementById('addGoalBtn')?.addEventListener('click', () => { let newGoal = prompt("Enter your new goal:"); if(newGoal) addGoal(newGoal); });
+    }
+
+    // Ambient Sounds (unique per type)
+    let activeAudioCtx = null;
+    function playAmbientSound(type) {
+        if(activeAudioCtx) activeAudioCtx.close();
+        activeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let bufferSize = 4096;
+        let scriptNode = activeAudioCtx.createScriptProcessor(bufferSize, 1, 1);
+        let noiseFunc = (type) => {
+            switch(type) {
+                case 'rain': return () => Math.random() * 0.2;
+                case 'cafe': return () => Math.random() * 0.1 + (Math.sin(Date.now() / 200) * 0.03);
+                case 'forest': return () => Math.random() * 0.08 + (Math.sin(Date.now() / 300) * 0.02);
+                case 'waves': return () => Math.sin(Date.now() / 500) * 0.1 + Math.random() * 0.05;
+                case 'fireplace': return () => Math.random() * 0.15 + (Math.sin(Date.now() / 80) * 0.02);
+                default: return () => Math.random() * 0.12;
+            }
+        };
+        let gen = noiseFunc(type);
+        scriptNode.onaudioprocess = (e) => {
+            let output = e.outputBuffer.getChannelData(0);
+            for(let i=0; i<bufferSize; i++) output[i] = gen();
+        };
+        scriptNode.connect(activeAudioCtx.destination);
+        activeAudioCtx.resume();
+    }
+    function stopAmbient() { if(activeAudioCtx) activeAudioCtx.close(); activeAudioCtx = null; }
+    function setupAmbient() {
+        document.querySelectorAll('[data-sound]').forEach(btn => btn.addEventListener('click', (e) => playAmbientSound(e.target.dataset.sound)));
+        document.getElementById('stopAmbient')?.addEventListener('click', stopAmbient);
+    }
+
+    // Dashboard section switching with back button
+    function initDashboardModules() {
+        setupTodo(); setupPomodoro(); setupQuotes(); setupCalendar(); setupNotes(); setupAmbient(); initGoals();
+        updateAnalytics(); updateProductivityScore(); updateTaskPreview(); updateGoalProgress();
+        const hour = new Date().getHours(); let greet = hour<12 ? "Good Morning" : hour<18 ? "Good Afternoon" : "Good Evening";
+        document.getElementById('dynamicGreeting').innerHTML = `${greet}, Scholar`;
+        document.getElementById('welcomeMessage') && (document.getElementById('welcomeMessage').innerText = `${greet}`);
+        // Sidebar navigation to views
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(nav => {
+            nav.addEventListener('click', (e) => {
+                e.preventDefault();
+                let target = nav.dataset.section;
+                document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active-view'));
+                if(target === 'dashboard-main') document.getElementById('dashboard-main').classList.add('active-view');
+                else document.getElementById(`${target}-view`).classList.add('active-view');
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+                nav.classList.add('active');
+            });
+        });
+        document.querySelectorAll('.widget-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active-view'));
+                document.getElementById('tasks-view').classList.add('active-view');
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelector('.sidebar-nav .nav-item[data-section="tasks"]').classList.add('active');
+            });
+        });
+        document.querySelectorAll('.back-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let backTo = btn.dataset.back;
+                document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active-view'));
+                document.getElementById(backTo).classList.add('active-view');
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelector('.sidebar-nav .nav-item[data-section="dashboard-main"]').classList.add('active');
+            });
+        });
+        updateQuoteBanner();
+    }
+
+    document.getElementById('contactForm')?.addEventListener('submit',(e)=>{ e.preventDefault(); document.getElementById('formFeedback').innerText='Message sent (demo) — thanks!'; setTimeout(()=>document.getElementById('formFeedback').innerText='',3000); });
+    navigateTo('home');
+</script>
+</body>
+</html>
